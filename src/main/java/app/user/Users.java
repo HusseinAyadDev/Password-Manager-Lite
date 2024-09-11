@@ -1,11 +1,11 @@
-package app.data;
+package app.user;
 
 import app.utils.SHA256;
 
 import java.util.HashMap;
 
 public class Users {
-    private final HashMap<String, String> users;
+    private final HashMap<String, User> users;
 
     public Users() {
         users = new HashMap<>();
@@ -16,7 +16,7 @@ public class Users {
             System.out.println("Username taken.");
         }
         password = SHA256.hashString(password);
-        users.put(username, password);
+        users.put(username, new User(username, password));
     }
 
     public boolean hasUser(String username) {
@@ -24,7 +24,7 @@ public class Users {
     }
 
     public String getUserPassword(String username) {
-        return users.get(username);
+        return users.get(username).getPassword();
     }
 
     public boolean userValidator(String username, String password) {

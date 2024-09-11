@@ -1,6 +1,6 @@
 package app.ui;
 
-import app.data.Users;
+import app.user.Users;
 
 import java.util.Scanner;
 
