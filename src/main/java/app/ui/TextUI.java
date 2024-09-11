@@ -35,6 +35,8 @@ public class TextUI {
                 userInput = loginPage.start();
             }
         }
+        System.out.println("Closing ...");
+        users.serialize();
     }
 
     private void showCommands() {
