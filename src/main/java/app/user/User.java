@@ -1,22 +1,64 @@
 package app.user;
 
-import app.utils.JsonFileHandler;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-class User {
+public class User {
 
     private final String username;
     private final String password;
-    private HashMap<String, String> passwords;
+    private List<Account> accounts;
 
-    public User(String username, String password, HashMap<String, String> passwords) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.passwords = passwords;
+        this.accounts = new ArrayList<>();
+    }
+
+    @SuppressWarnings("unused")
+    private User() {
+        this(null, null);
+        this.accounts = null;
+    }
+
+    private static class Account {
+        private final int accountID;
+        private String accountName;
+        private String accountUsername;
+        private String accountPassword;
+
+        private Account(int id, String name, String username, String password) {
+            accountID = id;
+            accountName = name;
+            accountUsername = username;
+            accountPassword = password;
+        }
+
+        @SuppressWarnings("unused")
+        private Account() {
+            this(0, null, null, null);
+        }
+
+        @SuppressWarnings("StringBufferReplaceableByString")
+        @Override
+        public String toString() {
+            StringBuilder text = new StringBuilder();
+            text.append("ID: ").append(accountID).append("\n");
+            text.append("Account Name: ").append(accountName).append("\n");
+            text.append("Username: ").append(accountUsername).append("\n");
+            text.append("password: ").append(accountPassword).append("\n");
+
+            return text.toString();
+        }
+    }
+
+    public boolean hasAccounts() {
+        return accounts.isEmpty();
+    }
+
+    public void addAccount(String name, String username, String password) {
+        int id = accounts.size() + 1;
+        accounts.add(new Account(id, name, username, password));
     }
 
     public String getUsername() {
@@ -27,19 +69,35 @@ class User {
         return password;
     }
 
-    protected void serialize(String filePath) throws IOException {
-        ObjectNode objectNode = JsonFileHandler.createObjectNode();
+    public boolean hasID(int id) {
+        return id < accounts.size();
+    }
 
-        objectNode.put("username", username);
-        objectNode.put("password", password);
+    public void removeAccount(int id) {
+        accounts.remove(id);
+    }
 
-        ObjectNode passwordsObjectNode = JsonFileHandler.createObjectNode();
+    public void setAccountName(int id, String input) {
+        accounts.get(id).accountName = input;
+    }
 
-        for (Map.Entry<String, String> entry : passwords.entrySet()) {
-            passwordsObjectNode.put(entry.getKey(), entry.getValue());
+    public void setAccountUsername(int id, String input) {
+        accounts.get(id).accountUsername = input;
+    }
+
+    public void setAccountPassword(int id, String input) {
+        accounts.get(id).accountPassword = input;
+    }
+
+    public void printAccounts() {
+        if (accounts.isEmpty()) {
+            System.out.println();
+            System.out.println("No accounts exits!");
+            return;
         }
-        objectNode.set("passwords", passwordsObjectNode);
-
-        JsonFileHandler.jsonFileWriter(objectNode, filePath + username + ".json");
+        for (Account a : accounts) {
+            System.out.println();
+            System.out.println(a);
+        }
     }
 }
