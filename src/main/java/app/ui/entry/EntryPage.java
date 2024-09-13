@@ -1,6 +1,7 @@
 package app.ui.entry;
 
 import app.ui.front.FrontPage;
+import app.user.User;
 import app.user.Users;
 
 import java.util.Scanner;
@@ -66,7 +67,11 @@ public class EntryPage {
             if (users.userValidator(username, password)) {
                 System.out.println();
                 System.out.println("access granted");
-                FrontPage userPage = new FrontPage(scanner, users.getUser(username));
+
+                User user = users.getUser(username);
+                user.decrypt();
+                FrontPage userPage = new FrontPage(scanner, user);
+
                 return userPage.start();
             }
             System.out.println();

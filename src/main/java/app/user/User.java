@@ -1,5 +1,16 @@
 package app.user;
 
+import app.utils.MyCipher;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,17 +18,20 @@ public class User {
 
     private final String username;
     private final String password;
+    private byte[] ivByte;
     private List<Account> accounts;
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.ivByte = MyCipher.generateIvByte();
         this.accounts = new ArrayList<>();
     }
 
     @SuppressWarnings("unused")
     private User() {
         this(null, null);
+        this.ivByte = null;
         this.accounts = null;
     }
 
@@ -87,6 +101,56 @@ public class User {
 
     public void setAccountPassword(int id, String input) {
         accounts.get(id).accountPassword = input;
+    }
+
+    public void encrypt() {
+        IvParameterSpec iv = MyCipher.generateIv(ivByte);
+
+        try {
+            SecretKey key = MyCipher.getKeyFromPassword(password, username);
+
+            for (int id = 0; id < accounts.size(); id++) {
+                Account acc = accounts.get(id);
+
+                String encrypted = MyCipher.encrypt(acc.accountName, key, iv);
+                setAccountName(id, encrypted);
+
+                encrypted = MyCipher.encrypt(acc.accountUsername, key, iv);
+                setAccountUsername(id, encrypted);
+
+                encrypted = MyCipher.encrypt(acc.accountPassword, key, iv);
+                setAccountPassword(id, encrypted);
+            }
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException |
+                 IllegalBlockSizeException | BadPaddingException | InvalidKeyException |
+                 InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void decrypt() {
+        IvParameterSpec iv = MyCipher.generateIv(ivByte);
+
+        try {
+            SecretKey key = MyCipher.getKeyFromPassword(password, username);
+
+            for (int id = 0; id < accounts.size(); id++) {
+                Account acc = accounts.get(id);
+
+                String encrypted = MyCipher.decrypt(acc.accountName, key, iv);
+                setAccountName(id, encrypted);
+
+                encrypted = MyCipher.decrypt(acc.accountUsername, key, iv);
+                setAccountUsername(id, encrypted);
+
+                encrypted = MyCipher.decrypt(acc.accountPassword, key, iv);
+                setAccountPassword(id, encrypted);
+            }
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException |
+                 IllegalBlockSizeException | BadPaddingException | InvalidKeyException |
+                 InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void printAccounts() {

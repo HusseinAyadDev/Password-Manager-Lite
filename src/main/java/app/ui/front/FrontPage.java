@@ -54,8 +54,10 @@ public class FrontPage {
                     removeAccount();
                     break;
                 case SIGNOUT:
+                    user.encrypt();
                     return EntryPageCommands.LOGIN;
                 case QUIT:
+                    user.encrypt();
                     return EntryPageCommands.QUIT;
                 case null:
                     break;
